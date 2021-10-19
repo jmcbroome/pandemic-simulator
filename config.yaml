@@ -3,7 +3,7 @@ executables:
 
 vgsim-params:
   samples: 1000000
-  it: 4000000
+  it: 4000000000
   rt: "parameter-files/twosite.rt"
   #pp and mg are paired as types and transition rates, so configure them with matching names.
   ppmg: "parameter-files/singlepop"
@@ -12,4 +12,4 @@ vgsim-params:
 
 phastsim-params:
   ref: "NC_045512v2.fa"
-  scale: "0.00003"
+  scale: "0.00045"
