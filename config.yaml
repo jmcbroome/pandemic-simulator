@@ -1,0 +1,15 @@
+executables:
+  vgexec: "~/VGsim/vgsim.py"
+
+vgsim_params:
+  samples: 1000000
+  it: 4000000
+  rt: "parameter-files/twosite.rt"
+  #pp and mg are paired as types and transition rates, so configure them with matching names.
+  ppmg: "parameter-files/singlepop"
+  #similar for su and st, being types and transition rates
+  sust: "parameter-files/flat"
+
+phastsim_params:
+  ref: "NC_045512v2.fa"
+  scale: "0.00003"
