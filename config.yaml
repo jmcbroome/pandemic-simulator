@@ -1,7 +1,7 @@
 executables:
-  vgexec: "~/VGsim/vgsim.py"
+  vgexec: "~/Desktop/VGsim/vgsim.py"
 
-vgsim_params:
+vgsim-params:
   samples: 1000000
   it: 4000000
   rt: "parameter-files/twosite.rt"
@@ -10,6 +10,6 @@ vgsim_params:
   #similar for su and st, being types and transition rates
   sust: "parameter-files/flat"
 
-phastsim_params:
+phastsim-params:
   ref: "NC_045512v2.fa"
   scale: "0.00003"
