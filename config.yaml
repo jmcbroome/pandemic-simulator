@@ -6,7 +6,7 @@ vgsim-params:
   it: 4000000000
   rt: "parameter-files/twosite.rt"
   #pp and mg are paired as types and transition rates, so configure them with matching names.
-  ppmg: "parameter-files/singlepop"
+  ppmg: "parameter-files/doublepop"
   #similar for su and st, being types and transition rates
   sust: "parameter-files/flat"
 
