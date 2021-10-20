@@ -12,4 +12,8 @@ Dependencies include:
 
 [Snakemake](https://snakemake.readthedocs.io/en/stable/)
 
+And the python packages:
+
+pandas, scipy, matplotlib, seaborn, numpy
+
 Ensure all dependencies are installed and available on your path.
