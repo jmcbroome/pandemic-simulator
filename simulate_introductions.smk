@@ -1,6 +1,17 @@
 configfile: "config.yaml"
 include: "create_neutral_mat.smk"
 
+rule score_states:
+    input:
+        "simulated_fullout.tsv"
+        "sim.mat.nwk"
+        "newick_output.nwk"
+        "migrations.txt"
+    output:
+        "results.txt"
+    script:
+        "python-scripts/score_states.py"
+
 rule define_states:
     input:
         "migrations.txt"
@@ -25,14 +36,3 @@ rule get_sim_nwk:
         "sim.mat.nwk"
     shell:
         "matUtils extract -i {input} -t {output}"
-
-rule score_states:
-    input:
-        "simulated_fullout.tsv"
-        "sim.mat.nwk"
-        "newick_output.nwk"
-        "migrations.txt"
-    output:
-        "results.txt"
-    script:
-        "python-scripts/score_states.py"
