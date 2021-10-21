@@ -3,9 +3,9 @@ include: "create_neutral_mat.smk"
 
 rule score_states:
     input:
-        "simulated_fullout.tsv"
-        "sim.mat.nwk"
-        "newick_output.nwk"
+        "simulated_fullout.tsv",
+        "sim.mat.nwk",
+        "newick_output.nwk",
         "migrations.txt"
     output:
         "results.txt"
@@ -22,7 +22,7 @@ rule define_states:
 
 rule run_introduce:
     input:
-        "simulated_regions.txt"
+        "simulated_regions.txt",
         "sim.mat.pb"
     output:
         "simulated_fullout.tsv"
