@@ -29,9 +29,9 @@ This is the simplest pipeline. It applies VGSim and phastSim to generate a singl
 
 #### Simulation Parameters Used
 
-VGsim: rates (rt), iterations and samples (it and s), migration and populations (ppmg), suspectibility (sust)
+VGsim: rates (rt), iterations (it) and samples, migration and populations (ppmg), suspectibility (sust)
 
-phastSim: scale, reference
+phastSim: scale, reference (ref)
 
 ### simulate_introductions.smk
 
@@ -39,6 +39,6 @@ This pipeline is used to simulate and validate the results of the "matUtils intr
 
 #### Simulation Parameters Used
 
-VGsim: rates (rt), iterations and samples (it and s), migration and populations (ppmg), suspectibility (sust)
+VGsim: rates (rt), iterations (it) and samples, migration and populations (ppmg), suspectibility (sust)
 
-phastSim: scale, reference
+phastSim: scale, reference (ref)
