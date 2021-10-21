@@ -11,9 +11,10 @@ tree = ete3.Tree("newick_output.nwk",format=1)
 with open("simulated_regions.txt","w+") as outf:
     leafstates = {}
     for l in tree.get_leaves():
+        key = l.name
         while l:
             if l.name in events:
-                print(l.name + "\t" + events[l.name], file = outf)
+                print(key + "\t" + events[l.name], file = outf)
                 break
             else:
                 l = l.up
