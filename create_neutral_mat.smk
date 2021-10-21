@@ -16,6 +16,7 @@ rule collapse_mat:
 rule vgsim:
     output:
         "newick_output.nwk"
+        "migrations.txt"
     shell:
         "python3 {config[executables][vgexec]} {config[vgsim-params][rt]} -it {config[vgsim-params][it]} -s {config[vgsim-params][samples]} -pm {config[vgsim-params][ppmg]}.pp {config[vgsim-params][ppmg]}.mg -su {config[vgsim-params][sust]}.su -st {config[vgsim-params][sust]}.st --createNewick --writeMigrations"
 
