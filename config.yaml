@@ -12,4 +12,4 @@ vgsim-params:
 
 phastsim-params:
   ref: "NC_045512v2.fa"
-  scale: "0.00045"
+  scale: "0.0009"

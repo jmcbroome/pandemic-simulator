@@ -4,6 +4,7 @@ include: "create_neutral_mat.smk"
 rule score_states:
     input:
         "simulated_fullout.tsv",
+        "simulated_fullout.collapsed.tsv",
         "sim.mat.nwk",
         "newick_output.nwk",
         "migrations.txt"
@@ -28,6 +29,15 @@ rule run_introduce:
         "simulated_fullout.tsv"
     shell:
         "matUtils introduce -i {input[1]} -s {input[0]} -o {output} -D assignments_out"
+
+rule rule_introduce_collapsed:
+    input:
+        "simulated_regions.txt",
+        "sim.mat.collapsed.pb"
+    output:
+        "simulated_fullout.collapsed.tsv"
+    shell:
+        "matUtils introduce -i {input[1]} -s {input[0]} -o {output}"
 
 rule get_sim_nwk:
     input:

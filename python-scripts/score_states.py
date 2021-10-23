@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import ete3
 import glob
+from sklearn.metrics import adjusted_rand_score
 
 events = {}
 with open("migrations.txt") as inf:
@@ -23,13 +24,19 @@ assert len(tnames) == len(snames)
 
 #for each node, traverse upwards from it until it encounters the latest event
 #and take that state. Not a particularly efficient algorithm, but sufficient here.
+#additionally, record clusters of samples descended from distinct migration events.
 nodestates = {}
 for l in tree.traverse():
     key = l.name
+    checking_leaf = l.is_leaf()
     assigned = False
     while l:
         if l.name in events:
             nodestates[key] = events[l.name]
+            if checking_leaf:
+                if l.name not in trueclusters:
+                    trueclusters[l.name] = []
+                trueclusters[l.name].append(key)
             assigned = True
             break
         else:
@@ -63,10 +70,26 @@ def get_predicted(d):
             return s
 assdf['PredState'] = assdf.apply(get_predicted,axis=1)
 cvc = (assdf.PredState == assdf.TrueState).value_counts(normalize=True)
+
+#now, we calculate the Adjusted Rand Index of cluster assignments for all simulated samples which are descended from at least one transition
+#in to or out of a region in the data.
+#the column drop is to remove some columns that are incorrectly parsed/behave oddly with the simulated MAT, as it has no clade annotations
+#this is a temporary measure.
+idf = pd.read_csv("simulated_fullout.collapsed.tsv",sep="\t").drop(["annotation_1","mutation_path"],axis=1).dropna()
+iv = {}
+for k,v in trueclusters.items():
+    for sv in v:
+        iv[sv]= k 
+idf['TC'] = idf['sample'].apply(lambda x:iv.get(str(x),np.nan))
+idf = idf.dropna()
+assert (idf.shape[0] > 0)
+ari = adjusted_rand_score(idf.introduction_node, idf.TC)
+
 #save useful results.
 with open("results.txt","w+") as outf:
-    print("Percentage of internal nodes correctly assigned overall: " + str(cvc[True]), file=outf)
-    print("Confusion Matrix", file=outf)
+    print("Percentage of internal nodes correctly assigned overall to full tree: " + str(cvc[True]), file=outf)
+    print("Adjusted Rand Index of cluster labels on collapsed tree: " + str(ari), file = outf)
+    print("Confusion Matrix of internal nodes", file=outf)
     print("________________", file=outf)
     print("Matrix\t" + "\t".join(["PredictedState=" + s for s in states]), file = outf)
     for ts in states:
