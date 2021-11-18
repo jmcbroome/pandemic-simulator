@@ -23,6 +23,12 @@ Our configuration file contains all relevant parameters, executable path informa
 
 ## Snakefiles
 
+All of these workflows are called with the following format:
+
+```
+snakemake -s workflow.smk -c1
+```
+
 ### create_neutral_mat.smk
 
 This is the simplest pipeline. It applies VGSim and phastSim to generate a single simulated MAT output.
