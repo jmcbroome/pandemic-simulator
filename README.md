@@ -14,7 +14,7 @@ Dependencies include:
 
 And the python packages:
 
-pandas, numpy, ete3
+pandas, numpy, ete3, scikit-learn
 
 Ensure all dependencies are installed and available on your path.
 
