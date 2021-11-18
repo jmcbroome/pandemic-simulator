@@ -29,6 +29,12 @@ All of these workflows are called with the following format:
 snakemake -s workflow.smk -c1
 ```
 
+e.g.
+
+```
+snakemake -s create_neutral_mat.smk -c1
+```
+
 ### create_neutral_mat.smk
 
 This is the simplest pipeline. It applies VGSim and phastSim to generate a single simulated MAT output.
