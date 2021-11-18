@@ -33,6 +33,16 @@ VGsim: rates (rt), iterations (it) and samples, migration and populations (ppmg)
 
 phastSim: scale, reference (ref)
 
+### create_neutral_mat_indels.smk
+
+Same as the neutral pipeline, but it also simulates indels with VGSim and phastSim. Additionally produces the alternativeOutputFormat simple text files from phastSim, as indels themselves are not currently represented in the MAT.
+
+#### Simulation Parameters Used
+
+VGsim: rates (rt), iterations (it) and samples, migration and populations (ppmg), suspectibility (sust)
+
+phastSim: scale, reference (ref), indel subparameters
+
 ### simulate_introductions.smk
 
 This pipeline is used to simulate and validate the results of the "matUtils introduce" heuristic for phylogeographic state identification. 
@@ -42,3 +52,4 @@ This pipeline is used to simulate and validate the results of the "matUtils intr
 VGsim: rates (rt), iterations (it) and samples, migration and populations (ppmg), suspectibility (sust)
 
 phastSim: scale, reference (ref)
+
