@@ -73,9 +73,7 @@ cvc = (assdf.PredState == assdf.TrueState).value_counts(normalize=True)
 
 #now, we calculate the Adjusted Rand Index of cluster assignments for all simulated samples which are descended from at least one transition
 #in to or out of a region in the data.
-#the column drop is to remove some columns that are incorrectly parsed/behave oddly with the simulated MAT, as it has no clade annotations
-#this is a temporary measure.
-idf = pd.read_csv("simulated_fullout.collapsed.tsv",sep="\t").drop(["annotation_1","mutation_path"],axis=1).dropna()
+idf = pd.read_csv("simulated_fullout.collapsed.tsv",sep="\t").dropna()
 iv = {}
 for k,v in trueclusters.items():
     for sv in v:

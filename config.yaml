@@ -1,15 +1,22 @@
 executables:
-  vgexec: "~/Desktop/VGsim/vgsim.py"
-
-vgsim-params:
-  samples: 1000000
-  it: 4000000000
-  rt: "parameter-files/twosite.rt"
-  #pp and mg are paired as types and transition rates, so configure them with matching names.
-  ppmg: "parameter-files/doublepop"
-  #similar for su and st, being types and transition rates
-  sust: "parameter-files/flat"
-
+  vgexec: ~/Desktop/VGsim/vgsim.py
+  phastexec: ~/Desktop/phastSim/bin/phastSim
 phastsim-params:
-  ref: "NC_045512v2.fa"
-  scale: "0.0009"
+  ref: NC_045512v2.fa
+  scale: '0.005'
+  ete3_mode: '0'
+  indel:
+      insertion_rate_type: "CONSTANT"
+      insertion_rate_parameter: '0.1'
+      insertion_length_type: "DISCRETE"
+      insertion_length_parameters: "0.0 0.0 1.0" 
+      deletion_rate_type: "CONSTANT"
+      deletion_rate_parameter: '0.1'
+      deletion_length_type: "DISCRETE"
+      deletion_length_parameters: "0.0 0.0 1.0"
+vgsim-params:
+  it: 400
+  ppmg: parameter-files/doublepop
+  rt: parameter-files/twosite.rt
+  samples: 50
+  sust: parameter-files/flat
