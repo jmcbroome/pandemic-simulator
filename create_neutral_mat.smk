@@ -26,4 +26,4 @@ rule phastsim:
     output:
         "sim.mat.pb"
     shell:
-        "python3 {config[executables][phastsim]} --output sim --reference {config[phastsim-params][ref]} --scale {config[phastsim-params][scale]} --createMAT --treeFile {input} --eteFormat {config[ete3_mode]}"
+        "python3 {config[executables][phastexec]} --output sim --reference {config[phastsim-params][ref]} --scale {config[phastsim-params][scale]} --createMAT --treeFile {input} --eteFormat {config[phastsim-params][ete3_mode]} --mutationRates {config[phastsim-params][mr_model]} {config[phastsim-params][mut_rates]}"
