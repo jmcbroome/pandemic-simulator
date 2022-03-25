@@ -3,7 +3,9 @@ import numpy as np
 import ete3
 import glob
 from sklearn.metrics import adjusted_rand_score
+from score_parsimony import *
 
+print("loading migration data and trees...")
 events = {}
 with open("migrations.txt") as inf:
     for entry in inf:
@@ -11,8 +13,6 @@ with open("migrations.txt") as inf:
         if spent[0] == "Node":
             continue
         events[spent[0]] = spent[-1]
-nodestates = {}
-trueclusters = {}
 
 tree = ete3.Tree("newick_output.nwk",format=1)
 stree = ete3.Tree("sim.mat.nwk",format=1)
@@ -26,7 +26,9 @@ assert len(tnames) == len(snames)
 #and take that state. Not a particularly efficient algorithm, but sufficient here.
 #additionally, record clusters of samples descended from distinct migration events.
 nodestates = {}
+trueclusters = {}
 counter = {}
+print("Assigning true node states...")
 for l in tree.traverse():
     key = l.name
     checking_leaf = l.is_leaf()
@@ -52,9 +54,16 @@ for l in tree.traverse():
             if '0' not in counter:
                 counter['0'] = 0
             counter['0'] += 1
+#get the numbers for a parsimony phylogeograhic approach.
+#for fairness, the parsimony needs to take in a post-collapse newick including polytomies, 
+#but the fitch algorithm requires a bifurcating tree, so we take the collapsed output pb, RANDOMLY resolve all polytomies,
+#and extract the newick from that to attempt parsimony phylogeographic reconstruction.
+do_resolution()
+parsimony_clusters, parsimony_assignments = assign_parsimony_clusters("sim.mat.collapsed.resolved.nwk","simulated_regions.txt")
 #collect the confidences of internal nodes inferred by matUtils.
-print(counter)
+#print(counter)
 dfvs = []
+print("Collecting introduce node assignment values...")
 for rf in glob.glob("assignments_out/*"):
     region = rf.split("/")[-1].split("_")[0]
     tdf = pd.read_csv(rf,sep='\t')
@@ -73,8 +82,11 @@ for k,v in nd.items():
         if v not in counter:
             counter[v] = 0
         counter[v] += 1
-print(counter)
+#print(counter)
 assdf['TrueState'] = assdf['sample'].apply(lambda x:nd[x])
+#print(parsimony_assignments)
+assdf['ParsimonyState'] = assdf['sample'].apply(lambda x:parsimony_assignments.get(x,'-'))
+assdf['ParsimonyCluster'] = assdf['sample'].apply(lambda x:parsimony_clusters.get(x,'-'))
 #remove leaves, as they have guaranteed correctness and are noninformative.
 assdf = assdf[assdf['sample'].apply(lambda x:"node_" in x)]
 states = assdf.TrueState.value_counts().index
@@ -86,8 +98,8 @@ def get_predicted(d):
             return s
 assdf['PredState'] = assdf.apply(get_predicted,axis=1)
 cvc = (assdf.PredState == assdf.TrueState).value_counts(normalize=True)
-print(assdf)
-
+pcvc = (assdf.ParsimonyState == assdf.TrueState).value_counts(normalize=True)
+assdf.to_csv("all_assignments.csv",index=False)
 #now, we calculate the Adjusted Rand Index of cluster assignments for all simulated samples which are descended from at least one transition
 #in to or out of a region in the data.
 idf = pd.read_csv("simulated_fullout.collapsed.tsv",sep="\t").dropna()
@@ -99,9 +111,11 @@ if len(iv) == 0:
     ari = 1 #not particularly meaningful. No migrations = no samples from the other region = no introductions = nothing to detect = can't be wrong??
 else:
     idf['TC'] = idf['sample'].apply(lambda x:iv.get(str(x),np.nan))
+    idf['PC'] = idf['sample'].apply(lambda x:parsimony_clusters.get(str(x),np.nan))
     idf = idf.dropna()
     assert (idf.shape[0] > 0)
     ari = adjusted_rand_score(idf.introduction_node, idf.TC)
+    parsimony_ari = adjusted_rand_score(idf.PC, idf.TC)
 
 #save useful results.
 with open("results.txt","w+") as outf:
@@ -112,5 +126,16 @@ with open("results.txt","w+") as outf:
     print("Matrix\t" + "\t".join(["PredictedState=" + s for s in states]), file = outf)
     for ts in states:
         pred_states = assdf[(assdf.TrueState == ts)].PredState.value_counts()
-        prow = "TrueState=" + ts + "\t" + "\t".join([str(pred_states[s]) for s in states])
+        prow = "TrueState=" + ts + "\t" + "\t".join([str(pred_states.get(s,np.nan)) for s in states])
+        print(prow, file = outf)
+    print("________________", file=outf)
+    print("Percentage of internal nodes correctly assigned by parsimony: " + str(pcvc[True]), file=outf)
+    tcv = assdf.ParsimonyState.value_counts(normalize=True)
+    print("Percentage of internal nodes undetermined by parsimony: " + str(tcv['-']), file=outf)
+    print("Adjusted Rand Index of parsimony cluster labels on collapsed tree: " + str(parsimony_ari), file = outf)
+    print("Parsimony Confusion Matrix", file=outf)
+    print("Matrix\t" + "\t".join(["PredictedState=" + s for s in states]), file = outf)
+    for ts in states:
+        pred_states = assdf[(assdf.TrueState == ts)].ParsimonyState.value_counts()
+        prow = "TrueState=" + ts + "\t" + "\t".join([str(pred_states.get(s,np.nan)) for s in states])
         print(prow, file = outf)
