@@ -58,8 +58,7 @@ for l in tree.traverse():
 #for fairness, the parsimony needs to take in a post-collapse newick including polytomies, 
 #but the fitch algorithm requires a bifurcating tree, so we take the collapsed output pb, RANDOMLY resolve all polytomies,
 #and extract the newick from that to attempt parsimony phylogeographic reconstruction.
-do_resolution()
-parsimony_clusters, parsimony_assignments = assign_parsimony_clusters("sim.mat.collapsed.resolved.nwk","simulated_regions.txt")
+parsimony_clusters, parsimony_assignments = assign_parsimony_clusters("sim.mat.collapsed.pb","simulated_regions.txt")
 #collect the confidences of internal nodes inferred by matUtils.
 #print(counter)
 dfvs = []
