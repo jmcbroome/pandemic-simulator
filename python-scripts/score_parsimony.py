@@ -9,7 +9,7 @@ def get_parsimony_scoring(pbf, regionf):
         for entry in inf:
             node, region = entry.strip().split()
             nrd[node] = region
-    parsimony_assigned = tree.simple_parsimony(tree,nrd)
+    parsimony_assigned = tree.simple_parsimony(nrd)
     return parsimony_assigned, tree
 
 def assign_parsimony_clusters(pbf = 'sim.mat.collapsed.pb', regionf = 'simulated_regions.txt'):
