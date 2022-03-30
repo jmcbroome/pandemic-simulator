@@ -26,7 +26,7 @@ assert len(tnames) == len(snames)
 #and take that state. Not a particularly efficient algorithm, but sufficient here.
 #additionally, record clusters of samples descended from distinct migration events.
 nodestates = {}
-trueclusters = {}
+trueclusters = {'node_1':[]}
 counter = {}
 print("Assigning true node states...")
 for l in tree.traverse():
@@ -54,11 +54,16 @@ for l in tree.traverse():
             if '0' not in counter:
                 counter['0'] = 0
             counter['0'] += 1
+        trueclusters['node_1'].append(key)
 #get the numbers for a parsimony phylogeograhic approach.
 #for fairness, the parsimony needs to take in a post-collapse newick including polytomies, 
 #but the fitch algorithm requires a bifurcating tree, so we take the collapsed output pb, RANDOMLY resolve all polytomies,
 #and extract the newick from that to attempt parsimony phylogeographic reconstruction.
-parsimony_clusters, parsimony_assignments = assign_parsimony_clusters("sim.mat.collapsed.pb","simulated_regions.txt")
+parsimony_clusters, parsimony_assignments = assign_parsimony_clusters("sim.mat.pb","simulated_regions.txt")
+#problematically, Fitch parsimony requires a resolved bifurcating tree.
+#this is not quite the same structure as our current tree, so we're going to recollapse it and assign states by simple majority
+#cluster assignments are sample-level and so unnecessary to deal with
+
 #collect the confidences of internal nodes inferred by matUtils.
 #print(counter)
 dfvs = []
@@ -83,11 +88,11 @@ for k,v in nd.items():
         counter[v] += 1
 #print(counter)
 assdf['TrueState'] = assdf['sample'].apply(lambda x:nd[x])
-#print(parsimony_assignments)
-assdf['ParsimonyState'] = assdf['sample'].apply(lambda x:parsimony_assignments.get(x,'-'))
-assdf['ParsimonyCluster'] = assdf['sample'].apply(lambda x:parsimony_clusters.get(x,'-'))
-#remove leaves, as they have guaranteed correctness and are noninformative.
-assdf = assdf[assdf['sample'].apply(lambda x:"node_" in x)]
+print(len(parsimony_assignments), len(nodestates))
+print(assdf)
+assdf['ParsimonyState'] = assdf['sample'].apply(lambda x:parsimony_assignments.get(x,'0'))
+assdf['ParsimonyCluster'] = assdf['sample'].apply(lambda x:parsimony_clusters.get(x,np.nan))
+assert assdf.shape[0] > 0
 states = assdf.TrueState.value_counts().index
 
 def get_predicted(d):
@@ -96,6 +101,7 @@ def get_predicted(d):
         if pv > 0.5:
             return s
 assdf['PredState'] = assdf.apply(get_predicted,axis=1)
+print(assdf)
 cvc = (assdf.PredState == assdf.TrueState).value_counts(normalize=True)
 pcvc = (assdf.ParsimonyState == assdf.TrueState).value_counts(normalize=True)
 assdf.to_csv("all_assignments.csv",index=False)
@@ -112,6 +118,8 @@ else:
     idf['TC'] = idf['sample'].apply(lambda x:iv.get(str(x),np.nan))
     idf['PC'] = idf['sample'].apply(lambda x:parsimony_clusters.get(str(x),np.nan))
     idf = idf.dropna()
+    #ignore samples from ancestors who never transmitted.
+    idf = idf[idf.TC != "node_1"]
     assert (idf.shape[0] > 0)
     ari = adjusted_rand_score(idf.introduction_node, idf.TC)
     parsimony_ari = adjusted_rand_score(idf.PC, idf.TC)
@@ -130,7 +138,8 @@ with open("results.txt","w+") as outf:
     print("________________", file=outf)
     print("Percentage of internal nodes correctly assigned by parsimony: " + str(pcvc[True]), file=outf)
     tcv = assdf.ParsimonyState.value_counts(normalize=True)
-    print("Percentage of internal nodes undetermined by parsimony: " + str(tcv['-']), file=outf)
+    print("________________", file=outf)
+    #print("Percentage of internal nodes undetermined by parsimony: " + str(tcv['-']), file=outf)
     print("Adjusted Rand Index of parsimony cluster labels on collapsed tree: " + str(parsimony_ari), file = outf)
     print("Parsimony Confusion Matrix", file=outf)
     print("Matrix\t" + "\t".join(["PredictedState=" + s for s in states]), file = outf)
